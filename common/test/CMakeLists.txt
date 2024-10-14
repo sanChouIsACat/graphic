@@ -8,7 +8,9 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../include")
 add_executable(
   common_lib_test
   algebra_test.cpp
+  transformation_test.cpp
   "${CMAKE_CURRENT_SOURCE_DIR}/../algebra.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/../transformation.cpp"
 )
 
 

@@ -5,28 +5,49 @@
 using namespace Eigen;
 using namespace algebra;
 
-Eigen::Matrix4f algebra::generateOrthogonal3DBasis(
-    const Eigen::Vector4f & vector, const Eigen::Vector4f& point)
+Eigen::Matrix4f algebra::generateOrthogonalBasis(
+    const Eigen::Vector4f& vector,
+    const Eigen::Vector4f& point,
+    int vector_offset)
 {
-    Matrix4f basis = Matrix4f::Identity();
-    Vector4f normedV = vector.normalized();
-    Vector3f v = homogeneousToNormal(normedV);
+    Matrix4f basis = Matrix4f::Zero();
+    Vector4f normed_v = vector.normalized();
+    Vector3f v = homogeneousToNormal(normed_v);
+    G_ASSERTS_TRUE(vector_offset >= 0 && vector_offset <=2 , "wrong vector offset");
     G_ASSERTS_TRUE(vector.w() == 0, "consider an vector rather point");
     G_ASSERTS_TRUE(v.norm() != 0, "consider a none zero");
 
-    int j = 0;
-    for (j = 0; j < 3 && !v[j]; j++);
-    basis.col(j) = normedV;
+    // a_1 * x_1 + a_2 * x_2 + a_3 * x_3 = 0
+    // find the first none ele
+    int next = (vector_offset + 1) %3;
+    basis.col(vector_offset) = normed_v;
     basis.col(3) = point;
-    
-    for (int i = 0; i < 3; i++) {
-        if (i == j) continue;
-        Vector4f e = Vector4f::Zero();
-		e[i] = 1;
-		e[j] = - v[i] / v[j];
-        e.normalize();
-		basis.col(i) = e;
+
+	Vector4f solution = Vector4f::Zero();
+    //a2 * x2 + a3 * x3 = 0
+    if (normed_v[0] == 0) {
+        solution[0] = 1;
     }
+    else {
+        solution[1] = 1;
+		solution[0] = normed_v[1] / - normed_v[0];
+        solution.normalize();
+    }
+    basis.col(next) = solution;
+    next = (next + 1) % 3;
+
+    basis.col(next) = Eigen::Map<Vector3f>(basis.col(vector_offset).head<3>().data())
+        .cross(Eigen::Map<Vector3f>(basis.col((vector_offset + 1) %3).head<3>().data()))
+        .normalized()
+        .homogeneous();
+	basis.col(next)[3] = 0;
 
     return basis;
+}
+
+Eigen::Matrix4f algebra::generateBasisTransformationMatrix(const Eigen::Vector4f& vector,
+    const Eigen::Vector4f& point,
+    int vectorOffset)
+{
+	return generateOrthogonalBasis(vector, point, vectorOffset).inverse();
 }

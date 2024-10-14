@@ -6,8 +6,10 @@
         throw std::runtime_error("Assert failed"); \
     }; \
 } while(0)
+#define G_ASSERTS_FALSE(condition, message, ...) G_ASSERTS_TRUE(!(condition), message, __VA_ARGS__)
 
 
 #ifndef DEBUG_GRAPHICS
     #undef ASSERTS_TRUE
+    #undef ASSERTS_FALSE
 #endif // DEBUG_GRAPHICS

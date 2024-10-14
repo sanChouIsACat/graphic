@@ -1,26 +1,21 @@
 #pragma once
 
 #include <eigen3/Eigen/Eigen>
-namespace transformation {
-    Eigen::Matrix4d generateScaleMatrix(double scale_x,
-        double scale_y,
-        double scale_z)
-    {
-        Eigen::Matrix4d scale_matrix;
-        scale_matrix << scale_x, 0, 0, 0,
-            0, scale_y, 0, 0,
-            0, 0, scale_z, 0,
-            0, 0, 0, 1;
-        return scale_matrix;
-    }
- //   Eigen::Matrix4d generateRotateMatrix(double angle)
-	//{
-	//	Eigen::Matrix4d translation_matrix;
-	//	translation_matrix << 1, 0, 0, x,
-	//		0, 1, 0, y,
-	//		0, 0, 1, z,
-	//		0, 0, 0, 1;
-	//	return translation_matrix;
-	//}
-}
 
+namespace transformation {
+    // generate a scale matrix
+    Eigen::Matrix4f generateScaleMatrix(float scale_x, float scale_y, float scale_z);
+
+    /*
+    * generate a translation matrix, the angle using pi
+    */
+    Eigen::Matrix4f generateRotateByZMatrix(float angle);
+
+    /*
+    *the direction is the axis of rotation, and the angle is the angle of rotation. the angle using pi
+    */
+    Eigen::Matrix4f generateArbitraryRotateMatrix(const Eigen::Vector4f direction, const Eigen::Vector4f point, float angle);
+
+    // generate a translation matrix
+    Eigen::Matrix4f generateTranslateMatrix(float translate_x, float translate_y, float translate_z);
+}
