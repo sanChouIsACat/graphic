@@ -9,10 +9,10 @@ void checkOrthogonal3DBasis(const Matrix4f& basis,
     const Vector4f& point, int offset) {
     for (int i = 0; i < 3; i++)
     {
-        Vector3f a = homogeneousToNormal(basis.col(i));
+        Vector3f a = homogeneousToNormalCoordinate(basis.col(i));
         EXPECT_FLOAT_EQ(1, a.norm()); // 每个向量是否单位化
         for (int j = i + 1; j < 3; j++) {
-            Vector3f b = homogeneousToNormal(basis.col(j));
+            Vector3f b = homogeneousToNormalCoordinate(basis.col(j));
             EXPECT_EQ(0, a.dot(b)); // 每个向量是否正交
         }
     }
@@ -122,4 +122,14 @@ TEST(generateOrthogonal3DBasisTest, originBasis8) {
     const Matrix4f& basis = generateOrthogonalBasis(v, origin, 2);
     GTEST_LOG_(INFO) << "basis: " << "\n" << basis;
     checkOrthogonal3DBasis(basis, v, origin, 2);
+}
+
+TEST(homogeneousNormalizeTest, twoToOne) {
+	Vector4f point(2, 4, 6, 2);
+	Vector4f result = homogeneousNormalize(point);
+	GTEST_LOG_(INFO) << "result: " << result;
+	EXPECT_FLOAT_EQ(1, result.w());
+	EXPECT_FLOAT_EQ(1, result.x());
+	EXPECT_FLOAT_EQ(2, result.y());
+	EXPECT_FLOAT_EQ(3, result.z());
 }

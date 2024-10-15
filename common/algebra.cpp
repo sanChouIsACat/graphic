@@ -12,7 +12,7 @@ Eigen::Matrix4f algebra::generateOrthogonalBasis(
 {
     Matrix4f basis = Matrix4f::Zero();
     Vector4f normed_v = vector.normalized();
-    Vector3f v = homogeneousToNormal(normed_v);
+    Vector3f v = homogeneousToNormalCoordinate(normed_v);
     G_ASSERTS_TRUE(vector_offset >= 0 && vector_offset <=2 , "wrong vector offset");
     G_ASSERTS_TRUE(vector.w() == 0, "consider an vector rather point");
     G_ASSERTS_TRUE(v.norm() != 0, "consider a none zero");
@@ -50,4 +50,18 @@ Eigen::Matrix4f algebra::generateBasisTransformationMatrix(const Eigen::Vector4f
     int vectorOffset)
 {
 	return generateOrthogonalBasis(vector, point, vectorOffset).inverse();
+}
+
+Eigen::Vector4f algebra::homogeneousNormalize(Eigen::Vector4f& point)
+{
+    float w = point.w();
+    G_ASSERTS_TRUE(w != 0, "using point rather vector");
+
+    if (w == 1) return point;
+    
+    point.x() /= w;
+    point.y() /= w;
+    point.z() /= w;
+    point.w() = 1;
+    return point;
 }

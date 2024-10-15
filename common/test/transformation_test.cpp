@@ -156,9 +156,9 @@ TEST(TranslateTransformationTest, simpleTranslateMatrix) {
 	GTEST_LOG_(INFO) << "rotate_matrix: \n" << translate_matrix;
 
 	Matrix4f expected_matrix;
-	expected_matrix << 0, 0, 0, 1,
-		0, 0, 0, 1,
-		0, 0, 0, 1,
+	expected_matrix << 1, 0, 0, 1,
+		0, 1, 0, 1,
+		0, 0, 1, 1,
 		0, 0, 0, 1;
 	ASSERT_EQ(true, expected_matrix.isApprox(translate_matrix));
 }
@@ -168,14 +168,37 @@ TEST(TranslateTransformationTest, complicatedTranslateMatrix) {
 	GTEST_LOG_(INFO) << "rotate_matrix: \n" << translate_matrix;
 
 	Matrix4f expected_matrix;
-	expected_matrix << 0, 0, 0, 12345.567,
-		0, 0, 0, 0.0001234,
-		0, 0, 0, 4444.5567,
+	expected_matrix << 1, 0, 0, 12345.567,
+		0, 1, 0, 0.0001234,
+		0, 0, 1, 4444.5567,
 		0, 0, 0, 1;
 
 	ASSERT_EQ(true, expected_matrix.isApprox(translate_matrix));
 }
 
+// windowing
+TEST(WindowingTransformationTest, simpleWindowingMatrix) {
+    // Define the parameters for the windowing transformation
+    float left = -1.0;
+    float right = 1.0;
+    float bottom = -1.0;
+    float top = 1.0;
+    float near = 0.0;
+    float far = 1.0;
+
+    // Generate the windowing matrix
+    Matrix4f windowing_matrix = generateWindowingMatrix(Vector4f(1,1,1,1),
+		Vector4f(2, 2, 2, 1),
+		Vector4f(5, 5, 5, 1),
+		Vector4f(10, 10, 10, 1)
+	);
+    GTEST_LOG_(INFO) << "windowing_matrix: \n" << windowing_matrix;
+
+    // Define the expected matrix
+	Vector4f d(2, 2, 1.5, 1);
+    // Verify that the generated matrix matches the expected matrix
+	ASSERT_EQ(windowing_matrix * d, Vector4f(10, 10, 7.5,1));
+}
 
 
  

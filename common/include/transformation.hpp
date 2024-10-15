@@ -18,4 +18,10 @@ namespace transformation {
 
     // generate a translation matrix
     Eigen::Matrix4f generateTranslateMatrix(float translate_x, float translate_y, float translate_z);
+
+    // windowing transformation
+	Eigen::Matrix4f generateWindowingMatrix(const Eigen::Vector4f down_left,
+        const Eigen::Vector4f top_right,
+        const Eigen::Vector4f new_down_left,
+        const Eigen::Vector4f new_top_right);
 }

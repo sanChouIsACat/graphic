@@ -16,7 +16,7 @@ namespace algebra {
 	Eigen::Matrix4f generateBasisTransformationMatrix(
 		const Eigen::Vector4f& vector, const Eigen::Vector4f& point, int vector_offset);
 	template<typename T>
-	Eigen::Vector3f homogeneousToNormal(const T& vector)
+	Eigen::Vector3f homogeneousToNormalCoordinate(const T& vector)
 	{
 		Eigen::Vector3f normal;
 		float w = vector.w();
@@ -24,4 +24,7 @@ namespace algebra {
 		normal << vector.x() / w, vector.y() / w, vector.z() / w;
 		return normal;
 	}
+	
+	// let w be 1. The return value will be it self.
+	Eigen::Vector4f homogeneousNormalize(Eigen::Vector4f& point);
 }

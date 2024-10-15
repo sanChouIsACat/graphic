@@ -7,6 +7,7 @@ project(graphics)
 enable_testing()
 # set debug macro. This will be used in the code to enable/disable debug code
 add_definitions(-DDEBUG_GRAPHICS)
+# add_definitions(-DTRACE_GRAPHICS)
 
 set(CMAKE_BINARY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/${PROJECT_NAME}")
 

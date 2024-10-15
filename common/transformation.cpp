@@ -66,12 +66,30 @@ namespace transformation {
 	Eigen::Matrix4f generateTranslateMatrix(float translate_x, float translate_y, float translate_z)
 	{
 		Eigen::Matrix4f translate_matrix;
-		translate_matrix << 0, 0, 0, translate_x,
-			0, 0, 0, translate_y,
-			0, 0, 0, translate_z,
+		translate_matrix << 1, 0, 0, translate_x,
+			0, 1, 0, translate_y,
+			0, 0, 1, translate_z,
 			0, 0, 0, 1;
 
 		return translate_matrix;
+	}
+
+	Eigen::Matrix4f generateWindowingMatrix(const Eigen::Vector4f down_left,
+		const Eigen::Vector4f top_right,
+		const Eigen::Vector4f new_down_left,
+		const Eigen::Vector4f new_top_right)
+	{
+		Matrix4f translate_to_origin_m = generateTranslateMatrix(-down_left.x(), -down_left.y(), -down_left.z());
+		G_LOGGER_TRACE("translate_to_origin_m :\n %s", EigenStructToString(translate_to_origin_m).c_str());
+		float x_scale_ratio = (new_top_right.x() - new_down_left.x()) / (top_right.x() - down_left.x());
+		float y_scale_ratio = (new_top_right.y() - new_down_left.y()) / (top_right.y() - down_left.y());
+		float z_scale_ratio = (new_top_right.z() - new_down_left.z()) / (top_right.z() - down_left.z());
+		G_LOGGER_TRACE("x:%f, y:%f, z:%f", x_scale_ratio, y_scale_ratio, z_scale_ratio);
+		Matrix4f scale_m = generateScaleMatrix(x_scale_ratio,y_scale_ratio,z_scale_ratio);
+		G_LOGGER_TRACE("scale_m :\n %s", EigenStructToString(scale_m).c_str());
+		Matrix4f translate_back_m = generateTranslateMatrix(new_down_left.x(), new_down_left.y(), new_down_left.z());
+		G_LOGGER_TRACE("translate_back_m :\n %s", EigenStructToString(translate_back_m).c_str());
+		return translate_back_m * scale_m * translate_to_origin_m;
 	}
 }
 

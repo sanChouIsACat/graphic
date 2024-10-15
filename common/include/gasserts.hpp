@@ -12,4 +12,6 @@
 #ifndef DEBUG_GRAPHICS
     #undef ASSERTS_TRUE
     #undef ASSERTS_FALSE
+#define G_ASSERTS_TRUE(condition, message, ...)
+#define G_ASSERTS_FALSE(condition, message, ...)
 #endif // DEBUG_GRAPHICS
