@@ -7,7 +7,7 @@
 #include "Triangle.hpp"
 #include <algorithm>
 #include <eigen3/Eigen/Eigen>
-#include "transformation.h"
+#include "transformation.hpp"
 using namespace Eigen;
 
 namespace rst {

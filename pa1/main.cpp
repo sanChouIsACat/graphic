@@ -1,5 +1,6 @@
 #include "Triangle.hpp"
 #include "rasterizer.hpp"
+#include "view.hpp"
 #include <eigen3/Eigen/Eigen>
 #include <iostream>
 #include <opencv2/opencv.hpp>
@@ -21,28 +22,17 @@ Eigen::Matrix4f get_view_matrix(Eigen::Vector3f eye_pos)
 
 Eigen::Matrix4f get_model_matrix(float rotation_angle)
 {
-    Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
-    
-
-    // TODO: Implement this function
-    // Create the model matrix for rotating the triangle around the Z axis.
-    // Then return it.
-
-    return model;
+    return transformation::generateRotateByZMatrix(rotation_angle);
 }
 
 Eigen::Matrix4f get_projection_matrix(float eye_fov, float aspect_ratio,
                                       float zNear, float zFar)
 {
-    // Students will implement this function
+    float half_len = std::tanf(eye_fov)* zNear;
+    Vector4f down_left = Vector4f(-half_len, -half_len, zNear, 1);
+    Vector4f top_right = Vector4f(half_len, half_len, zNear, 1);
 
-    Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
-
-    // TODO: Implement this function
-    // Create the projection matrix for the given parameters.
-    // Then return it.
-
-    return projection;
+    return view::generatePerspectiveProjection(down_left, top_right, zFar);
 }
 
 int main(int argc, const char** argv)
@@ -80,7 +70,7 @@ int main(int argc, const char** argv)
 
         r.set_model(get_model_matrix(angle));
         r.set_view(get_view_matrix(eye_pos));
-        r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
+        r.set_projection(get_projection_matrix(45, 1, -0.1, -50));
 
         r.draw(pos_id, ind_id, rst::Primitive::Triangle);
         cv::Mat image(700, 700, CV_32FC3, r.frame_buffer().data());
@@ -90,13 +80,14 @@ int main(int argc, const char** argv)
 
         return 0;
     }
-
+    
+    Matrix4f projective_m = get_projection_matrix(45, 1, -0.1, -50);
     while (key != 27) {
         r.clear(rst::Buffers::Color | rst::Buffers::Depth);
 
         r.set_model(get_model_matrix(angle));
         r.set_view(get_view_matrix(eye_pos));
-        r.set_projection(get_projection_matrix(45, 1, 0.1, 50));
+        r.set_projection(projective_m);
 
         r.draw(pos_id, ind_id, rst::Primitive::Triangle);
 
