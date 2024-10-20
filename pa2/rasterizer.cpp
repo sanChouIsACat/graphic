@@ -8,6 +8,8 @@
 #include "rasterizer.hpp"
 #include <opencv2/opencv.hpp>
 #include <math.h>
+#include <limits.h>
+#include "interpolation.hpp"
 
 
 rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
@@ -50,6 +52,26 @@ static std::tuple<float, float, float> computeBarycentric2D(float x, float y, co
     float c1 = (x*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*y + v[1].x()*v[2].y() - v[2].x()*v[1].y()) / (v[0].x()*(v[1].y() - v[2].y()) + (v[2].x() - v[1].x())*v[0].y() + v[1].x()*v[2].y() - v[2].x()*v[1].y());
     float c2 = (x*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*y + v[2].x()*v[0].y() - v[0].x()*v[2].y()) / (v[1].x()*(v[2].y() - v[0].y()) + (v[0].x() - v[2].x())*v[1].y() + v[2].x()*v[0].y() - v[0].x()*v[2].y());
     float c3 = (x*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*y + v[0].x()*v[1].y() - v[1].x()*v[0].y()) / (v[2].x()*(v[0].y() - v[1].y()) + (v[1].x() - v[0].x())*v[2].y() + v[0].x()*v[1].y() - v[1].x()*v[0].y());
+    Matrix3f basis;
+    for (int i = 0; i < 3; i++) {
+        basis.col(i) = v[i].head<2>().homogeneous();
+    }
+    /*
+	* the above ugly formual is the analytical solution of the following linear question:
+	* If we use triangle vertices as the basis of a 2D plane, how to compute coordiante of the same point.
+    * This coordinate system has a unique name: Barycentric.
+    * more detail at tiger book 86.
+    */
+
+    // direct solution but not fast
+	/*Vector3f bary = basis.inverse() * Vector3f(x, y, 1);
+    for (int i = 0; i < 3; i++)
+    {
+        bary[i] /= bary.z();
+    }
+    c1 = bary[0];
+    c2 = bary[1];
+    c3 = 1 - c1 - c2;*/
     return {c1,c2,c3};
 }
 
@@ -73,12 +95,13 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
         };
         //Homogeneous division
         for (auto& vec : v) {
+
             vec /= vec.w();
         }
         //Viewport transformation
         for (auto & vert : v)
         {
-            vert.x() = 0.5*width*(vert.x()+1.0);
+            vert.x() = 0.5*width*(vert.x() +1.0);
             vert.y() = 0.5*height*(vert.y()+1.0);
             vert.z() = vert.z() * f1 + f2;
         }
@@ -105,15 +128,46 @@ void rst::rasterizer::draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf
 //Screen space rasterization
 void rst::rasterizer::rasterize_triangle(const Triangle& t) {
     auto v = t.toVector4();
-    
+    float min_x = std::numeric_limits<float>::max();
+    float min_y = std::numeric_limits<float>::max();
+    float max_x = std::numeric_limits<float>::min();
+    float max_y = std::numeric_limits<float>::min();
+
+    for (const Vector4f& edge : v) {
+
+        float x = edge.x();
+        float y = edge.y();
+        min_x = min_x < x ? min_x : x;
+        min_y = min_y < y ? min_y : y;
+        max_x = max_x > x ? max_x : x;
+        max_y = max_y > y ? max_y : y;
+    }
+
+    for (int i = min_x; i < (int)max_x; i++)
+    {
+        for (int j = min_y; j < max_y; j++)
+        {
+            if (interpolation::insideTriangle(i , j, v)) {
+                auto [alpha, beta, gamma] = computeBarycentric2D(i, j, t.v);
+                float w_reciprocal = 1.0 / (alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
+                float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
+                z_interpolated = 0 - z_interpolated;
+                z_interpolated *= w_reciprocal;
+                int idx = width * i + j;
+
+                if (depth_buf[idx] < z_interpolated) {
+                    depth_buf[idx] = z_interpolated;
+                    set_pixel(Vector3f(i, j, 0), t.getColor());
+                }
+            }
+        }
+    }
+
     // TODO : Find out the bounding box of current triangle.
     // iterate through the pixel and find if the current pixel is inside the triangle
 
     // If so, use the following code to get the interpolated z value.
-    //auto[alpha, beta, gamma] = computeBarycentric2D(x, y, t.v);
-    //float w_reciprocal = 1.0/(alpha / v[0].w() + beta / v[1].w() + gamma / v[2].w());
-    //float z_interpolated = alpha * v[0].z() / v[0].w() + beta * v[1].z() / v[1].w() + gamma * v[2].z() / v[2].w();
-    //z_interpolated *= w_reciprocal;
+     
 
     // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
 }
@@ -141,7 +195,7 @@ void rst::rasterizer::clear(rst::Buffers buff)
     }
     if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
     {
-        std::fill(depth_buf.begin(), depth_buf.end(), std::numeric_limits<float>::infinity());
+        std::fill(depth_buf.begin(), depth_buf.end(), - std::numeric_limits<float>::infinity());
     }
 }
 

@@ -10,16 +10,13 @@ add_executable(
   algebra_test.cpp
   transformation_test.cpp
   view_test.cpp
-  "${CMAKE_CURRENT_SOURCE_DIR}/../algebra.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../view.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/../transformation.cpp"
+  interpolation_test.cpp
 )
 
-# set trace macro. trace log is most used in unit test.
-target_compile_definitions(common_lib_test PRIVATE TRACE_GRAPHICS)
 target_link_libraries(
   common_lib_test
   PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
+  PRIVATE common_lib_trace
 )
 
 add_test(AllTestsInMain common_lib_test)
