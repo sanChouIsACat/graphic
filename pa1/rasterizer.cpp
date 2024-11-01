@@ -7,6 +7,7 @@
 #include <opencv2/opencv.hpp>
 #include <math.h>
 #include <stdexcept>
+#include "logger.hpp"
 
 
 rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
@@ -27,104 +28,165 @@ rst::ind_buf_id rst::rasterizer::load_indices(const std::vector<Eigen::Vector3i>
 
 // Bresenham's line drawing algorithm
 // Code taken from a stack overflow answer: https://stackoverflow.com/a/16405254
+//void rst::rasterizer::draw_line(Eigen::Vector3f begin, Eigen::Vector3f end)
+//{
+//    auto x1 = begin.x();
+//    auto y1 = begin.y();
+//    auto x2 = end.x();
+//    auto y2 = end.y();
+//
+//    Eigen::Vector3f line_color = {255, 255, 255};
+//
+//    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
+//
+//    dx=x2-x1;
+//    dy=y2-y1;
+//    dx1=fabs(dx);
+//    dy1=fabs(dy);
+//    px=2*dy1-dx1;
+//    py=2*dx1-dy1;
+//
+//    if(dy1<=dx1)
+//    {
+//        if(dx>=0)
+//        {
+//            x=x1;
+//            y=y1;
+//            xe=x2;
+//        }
+//        else
+//        {
+//            x=x2;
+//            y=y2;
+//            xe=x1;
+//        }
+//        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+//        set_pixel(point,line_color);
+//        for(i=0;x<xe;i++)
+//        {
+//            x=x+1;
+//            if(px<0)
+//            {
+//                px=px+2*dy1;
+//            }
+//            else
+//            {
+//                if((dx<0 && dy<0) || (dx>0 && dy>0))
+//                {
+//                    y=y+1;
+//                }
+//                else
+//                {
+//                    y=y-1;
+//                }
+//                px=px+2*(dy1-dx1);
+//            }
+////            delay(0);
+//            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+//            set_pixel(point,line_color);
+//        }
+//    }
+//    else
+//    {
+//        if(dy>=0)
+//        {
+//            x=x1;
+//            y=y1;
+//            ye=y2;
+//        }
+//        else
+//        {
+//            x=x2;
+//            y=y2;
+//            ye=y1;
+//        }
+//        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+//        set_pixel(point,line_color);
+//        for(i=0;y<ye;i++)
+//        {
+//            y=y+1;
+//            if(py<=0)
+//            {
+//                py=py+2*dx1;
+//            }
+//            else
+//            {
+//                if((dx<0 && dy<0) || (dx>0 && dy>0))
+//                {
+//                    x=x+1;
+//                }
+//                else
+//                {
+//                    x=x-1;
+//                }
+//                py=py+2*(dx1-dy1);
+//            }
+////            delay(0);
+//            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
+//            set_pixel(point,line_color);
+//        }
+//    }
+//}
 void rst::rasterizer::draw_line(Eigen::Vector3f begin, Eigen::Vector3f end)
 {
-    auto x1 = begin.x();
-    auto y1 = begin.y();
-    auto x2 = end.x();
-    auto y2 = end.y();
+    // make sure begin is left than end
+    if (begin.x() > end.x()) {
+        std::swap(begin, end);
+    }
 
-    Eigen::Vector3f line_color = {255, 255, 255};
+	float x1 = begin.x();
+    float y1 = begin.y();
+	float x2 = end.x();
+	float y2 = end.y();
 
-    int x,y,dx,dy,dx1,dy1,px,py,xe,ye,i;
-
-    dx=x2-x1;
-    dy=y2-y1;
-    dx1=fabs(dx);
-    dy1=fabs(dy);
-    px=2*dy1-dx1;
-    py=2*dx1-dy1;
-
-    if(dy1<=dx1)
-    {
-        if(dx>=0)
-        {
-            x=x1;
-            y=y1;
-            xe=x2;
+    // for horizontal lines
+    if (x1 == x2) {
+        for (int i = std::min(y1, y2); i <= std::max(y1, y2); i++) {
+            Eigen::Vector3f point = Eigen::Vector3f(x1, i, 1.0f);
+            set_pixel(point, Eigen::Vector3f(255, 255, 255));
         }
-        else
+        return;
+    }
+
+    float ratio = (y2 - y1) / (x2 - x1);
+	int cur = y1;
+    if (ratio < 0) {
+        for (int i = x1; i < x2; i++)
         {
-            x=x2;
-            y=y2;
-            xe=x1;
-        }
-        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
-        set_pixel(point,line_color);
-        for(i=0;x<xe;i++)
-        {
-            x=x+1;
-            if(px<0)
-            {
-                px=px+2*dy1;
+            int next = y1 + ratio * (i + 1 - x1);
+            int middle = (int)(cur + next) / 2;
+            int length = cur - next;
+			/*
+            * should draw additional pixals to connect the line.
+            * cautions: all pixals that has the same y coordiante as y2 should be drawn too. 
+            */ 
+            for (int j = cur; j >= next && j >= (int)y2; j--) {
+                Eigen::Vector3f point = Eigen::Vector3f(i, j, 1.0f);
+                int value = 255;
+                set_pixel(point, Eigen::Vector3f(255, 255, 255));
             }
-            else
-            {
-                if((dx<0 && dy<0) || (dx>0 && dy>0))
-                {
-                    y=y+1;
-                }
-                else
-                {
-                    y=y-1;
-                }
-                px=px+2*(dy1-dx1);
-            }
-//            delay(0);
-            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
-            set_pixel(point,line_color);
+            cur = next;
         }
     }
-    else
-    {
-        if(dy>=0)
+    else {
+        // the same as previous. Just reverse the relation
+        for (int i = x1; i < x2; i++)
         {
-            x=x1;
-            y=y1;
-            ye=y2;
-        }
-        else
-        {
-            x=x2;
-            y=y2;
-            ye=y1;
-        }
-        Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
-        set_pixel(point,line_color);
-        for(i=0;y<ye;i++)
-        {
-            y=y+1;
-            if(py<=0)
-            {
-                py=py+2*dx1;
-            }
-            else
-            {
-                if((dx<0 && dy<0) || (dx>0 && dy>0))
-                {
-                    x=x+1;
+            int next = y1 + ratio * (i + 1 - x1);
+            for (int j = cur; j <= next && j <= std::ceil(y2); j++) {
+                if (std::abs(ratio) >= 4) {
+                    G_LOGGER_TRACE("i: {%d}, j: {%d}", i, j);
                 }
-                else
-                {
-                    x=x-1;
-                }
-                py=py+2*(dx1-dy1);
+                Eigen::Vector3f point = Eigen::Vector3f(i, j, 1.0f);
+                set_pixel(point, Eigen::Vector3f(255, 255, 255));
             }
-//            delay(0);
-            Eigen::Vector3f point = Eigen::Vector3f(x, y, 1.0f);
-            set_pixel(point,line_color);
+            cur = next;
         }
     }
+   
+    G_LOGGER_TRACE("the final pixal: {%f,%f}", x2, y2);
+    set_pixel(Eigen::Vector3f{(float)(int)x2, (float)(int)y2, 1.0f}, Eigen::Vector3f(255, 255, 255));
+
 }
 
 auto to_vec4(const Eigen::Vector3f& v3, float w = 1.0f)

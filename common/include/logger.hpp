@@ -19,7 +19,7 @@ struct has_ostream_operator : std::false_type {};
 * 2. `std::declval<std::ostringstream&>() << std::declval<T>(), void()` ends with type void.
 *     Without void(), when T has multiple overrided << operator, the compiler won't know which to choose, then throw an error.
 * 3. When T does not support std::ostream << T, substitution will fail, has_ostream_operator<T> is subclass of false_type.
-*    When T support std::ostream << T, substitution will fail, has_ostream_operator<T> is subclass of true_tpye. This is called
+*    When T support std::ostream << T, substitution will success, has_ostream_operator<T> is subclass of true_tpye. This is called
 *    SFINAE.
 * 
 */ 

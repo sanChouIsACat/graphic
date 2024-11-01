@@ -6,6 +6,8 @@ enable_testing()
 find_package(GTest CONFIG REQUIRED)
 add_subdirectory(test)
 
+find_package(OpenCV REQUIRED)
+
 
 # 将common作为库进行构建
 file(GLOB COMMON_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
