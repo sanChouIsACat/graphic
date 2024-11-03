@@ -27,4 +27,19 @@ namespace algebra {
 	
 	// let w be 1. The return value will be it self.
 	Eigen::Vector4f homogeneousNormalize(Eigen::Vector4f& point);
+
+	// normalize the vector to the given length.
+	template<typename T>
+	T normalizeToLength(const T& vector, float length)
+	{
+		return vector.normalized() * length;
+	}
+
+	// normalize the vector to the given length inplace.
+	template<typename T>
+	void normalizeToLengthInPlace(T& vector, float length)
+	{
+		vector.normalize();
+		vector = vector * length;
+	}
 }

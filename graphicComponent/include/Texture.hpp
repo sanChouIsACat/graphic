@@ -6,6 +6,8 @@
 #define RASTERIZER_TEXTURE_H
 #include <eigen3/Eigen/Eigen>
 #include <opencv2/opencv.hpp>
+#include "types.hpp"
+
 class Texture{
 private:
     cv::Mat image_data;
@@ -21,7 +23,7 @@ public:
 
     int width, height;
 
-    Eigen::Vector3f getColor(float u, float v)
+    RGB getColor(float u, float v) const
     {
         auto u_img = u * width;
         auto v_img = (1 - v) * height;

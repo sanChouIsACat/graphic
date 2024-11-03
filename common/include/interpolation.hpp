@@ -1,12 +1,35 @@
 #pragma once
 #include "eigen3/Eigen/Eigen"
 #include "logger.hpp"
+#include "g_type_traits.hpp"
+#include "gasserts.hpp"
+
 namespace interpolation {
 	/*
 	* Both functin will return true if the point is inside the triangle.
 	* Note the compartion is in 2D and triangle is projected.
 	*/ 
-	bool insideTriangle(float x, float y,const std::array<Eigen::Vector4f, 3>& edges);
+	template<typename T>
+	bool insideTriangle(float x, float y, const T& edges) {
+		static_assert(g_type_traits::has_subscript_operator_v<T>, "T should be support [] operator");
+		
+		int res = 0;
+		for (int i = 0; i < 3; i++)
+		{
+			G_ASSERTS_TRUE(edges[i].w() == 1, "should be point but vector");
+
+			float ab_x = edges[i].x() - edges[(i + 1) % 3].x();
+			float ab_y = edges[i].y() - edges[(i + 1) % 3].y();
+			float qa_x = x - edges[i].x();
+			float qa_y = y - edges[i].y();
+			// ab cross qa
+			float cross_res = ab_x * qa_y - ab_y * qa_x;
+			G_LOGGER_TRACE("ab(%.2f,%.2f) corss qa(%.2f,%.2f) equals %f", ab_x, ab_y, qa_x, qa_y, cross_res);
+			res += cross_res < 0 ? -1 : 1;
+		}
+
+		return std::abs(res) == 3;
+	};
 
 	/*
 	* use dy/dx to decide whether draw additional line in same column.
@@ -27,10 +50,12 @@ namespace interpolation {
 	* interpoliate properties inside an triangle
 	*/
 	template<typename T>
-	std::tuple<float, float, float> computeBarycentric2D(float x, float y, const T v)
+	std::tuple<float, float, float> computeBarycentric2D(float x, float y, const T& v)
 	{
 		bool constexpr compile_type_check =
 			std::is_same_v<T, std::array<Eigen::Vector4f, 3>> ||
+			std::is_same_v<T, std::array<Eigen::Vector3f, 3>> ||
+			std::is_array_v<T> ||
 			std::is_same_v<T, Eigen::Vector4f*> ||
 			std::is_same_v<T, const Eigen::Vector4f*>;
 		static_assert(compile_type_check, "v must be an array of 3 Eigen::Vector3f or it's pointer");
