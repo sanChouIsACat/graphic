@@ -111,4 +111,34 @@ namespace g_type_traits {
     // Helper to get the value out
     template <std::string_view const& a, std::size_t t, std::string_view const& b>
     static constexpr std::string_view str_join_v = join<a, t, b>::value;
+
+    // test whether T is at least two dimensions
+    template<typename T, typename K = void>
+    struct has_two_dimensions : public std::false_type{};
+    template<typename T>
+    struct has_two_dimensions<T, decltype((std::declval<T>().x(),std::declval<T>().y(),void()))> : public std::true_type {};
+    template<typename T>
+    inline constexpr bool has_two_dimensions_v = has_two_dimensions<T>::value;
+
+    // test whether T is at least three dimensions
+    template<typename T, typename K = void>
+    struct has_three_dimensions : public std::false_type {};
+    template<typename T>
+    struct has_three_dimensions<T, decltype((std::declval<T>().x(),
+        std::declval<T>().y(),
+        std::declval<T>().z(),
+        void()))> : public std::true_type {};
+    template<typename T>
+    inline constexpr bool has_three_dimensions_v = has_three_dimensions<T>::value;
+
+    // test whether T has norm operators
+    template<typename T, typename K = void>
+    struct has_norm_functions : public std::false_type {};
+    template<typename T>
+    struct has_norm_functions<T, decltype(
+        ((std::declval<T>() - std::declval<T>()).norm()),
+        void())> : public std::true_type {};
+    template<typename T>
+    inline constexpr bool has_norm_function = has_norm_functions<T>::value;
+
 }

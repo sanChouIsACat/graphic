@@ -1,5 +1,6 @@
 #pragma once
 #include <eigen3/Eigen/Eigen>
+#include "g_type_traits.hpp"
 
 namespace algebra {
 	/*
@@ -41,5 +42,18 @@ namespace algebra {
 	{
 		vector.normalize();
 		vector = vector * length;
+	}
+
+	template<typename T>
+	bool insideCircle(const T& circle, const T& point, float radiu) {
+		static_assert(g_type_traits::has_two_dimensions_v<T>, "using at least two dimensions vectors");
+		return (std::pow(circle.x() - point.x(), 2) + std::pow(circle.y() - point.y(), 2)) < radiu;
+	}
+
+	template<typename T>
+	bool isApproxEqual(const T& v1, const T& v2, float epsilon = 1e-5) {
+		static_assert(g_type_traits::has_norm_function<T>, "using a vector");
+
+		return (v1 - v2).norm() < epsilon;
 	}
 }

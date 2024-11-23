@@ -1,80 +1,54 @@
 #include <chrono>
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include "Curves.hpp"
+#include "types.hpp"
+#include "stateMachine.hpp"
+#include "bezierCurve.hpp"
+#include "window.hpp"
+#include "functional"
+#include "algo.hpp"
 
-std::vector<cv::Point2f> control_points;
-
-void mouse_handler(int event, int x, int y, int flags, void *userdata) 
-{
-    if (event == cv::EVENT_LBUTTONDOWN && control_points.size() < 4) 
-    {
-        std::cout << "Left button of the mouse is clicked - position (" << x << ", "
-        << y << ")" << '\n';
-        control_points.emplace_back(x, y);
-    }     
-}
-
-void naive_bezier(const std::vector<cv::Point2f> &points, cv::Mat &window) 
-{
-    auto &p_0 = points[0];
-    auto &p_1 = points[1];
-    auto &p_2 = points[2];
-    auto &p_3 = points[3];
-
-    for (double t = 0.0; t <= 1.0; t += 0.001) 
-    {
-        auto point = std::pow(1 - t, 3) * p_0 + 3 * t * std::pow(1 - t, 2) * p_1 +
-                 3 * std::pow(t, 2) * (1 - t) * p_2 + std::pow(t, 3) * p_3;
-
-        window.at<cv::Vec3b>(point.y, point.x)[2] = 255;
-    }
-}
-
-cv::Point2f recursive_bezier(const std::vector<cv::Point2f> &control_points, float t) 
-{
-    // TODO: Implement de Casteljau's algorithm
-    return cv::Point2f();
-
-}
-
-void bezier(const std::vector<cv::Point2f> &control_points, cv::Mat &window) 
-{
-    // TODO: Iterate through all t = 0 to t = 1 with small steps, and call de Casteljau's 
-    // recursive Bezier algorithm.
-
-}
-
+using namespace GAlgo;
+using namespace GComponent;
+constexpr int width = 700;
+constexpr int height = 700;
+constexpr int control_point_check_radio = 20;
+constexpr int control_point_render_radio = 5;
+constexpr float sample_rate = 0.0001;
+constexpr char* window_name = "pa4";
 int main() 
 {
-    cv::Mat window = cv::Mat(700, 700, CV_8UC3, cv::Scalar(0));
-    cv::cvtColor(window, window, cv::COLOR_BGR2RGB);
-    cv::namedWindow("Bezier Curve", cv::WINDOW_AUTOSIZE);
+    // global variables
+    using CurrentWindowT = GameWindow<Machine>;
+    std::vector<POINT_EGDE_2D> control_points;
+    Context ctx{ control_point_check_radio };
+    Machine machine{ ctx };
+    CurrentWindowT window{width, height, window_name, machine};
+    auto f = [&window](int x, int y, const RGB& rgb) {
+        window.set_pixel(POINT_EGDE_2D{ (float)x, (float)y, 1 }, rgb);
+        };
+    BezierCurve bezierCurve{f};
+    ctx.control_points = &control_points;
 
-    cv::setMouseCallback("Bezier Curve", mouse_handler, nullptr);
+    GameWindow<std::any>::DRAR_FUNCTION draw_curve = [&window, &bezierCurve, &control_points, &ctx]() {
+        std::shared_lock lock(ctx.vec_mutex);
+        bezierCurve.drawCurve(sample_rate, control_points, generateRainbowColor);
+        };
 
-    int key = -1;
-    while (key != 27) 
-    {
-        for (auto &point : control_points) 
+    GameWindow<std::any>::DRAR_FUNCTION draw_control_point = [&ctx, &window]() {
+        std::shared_lock lock(ctx.vec_mutex);
+        for (int i = 0; i < ctx.control_points->size(); i++)
         {
-            cv::circle(window, point, 3, {255, 255, 255}, 3);
+            auto& x = ctx.control_points[i];
+            GAlgo::renderCircle((*ctx.control_points)[i],
+                control_point_render_radio,
+                std::bind(&FrameBuffer::set_pixel, &window, std::placeholders::_1, std::placeholders::_2),
+                [](const RGB& whatever) {return RGB{ 255,255,255 }; });
         }
-
-        if (control_points.size() == 4) 
-        {
-            naive_bezier(control_points, window);
-            //   bezier(control_points, window);
-
-            cv::imshow("Bezier Curve", window);
-            cv::imwrite("my_bezier_curve.png", window);
-            key = cv::waitKey(0);
-
-            return 0;
-        }
-
-        cv::imshow("Bezier Curve", window);
-        key = cv::waitKey(20);
-    }
-
-return 0;
+        };
+    GameWindow<std::any>::DRAR_FUNCTIONS drawFunctions{ draw_control_point, draw_curve };
+    window.set_draw_functions(std::move(drawFunctions));
+    window.run();
+    return 0;
 }

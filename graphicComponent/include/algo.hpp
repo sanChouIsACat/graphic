@@ -3,8 +3,17 @@
 #include "interpolation.hpp"
 #include "g_type_traits.hpp"
 #include "logger.hpp"
+#include "types.hpp"
 #include <tuple>
-namespace g_algo {
+namespace GAlgo {
+	// directly copied from chatgpt
+	RGB generateRainbowColor(float t);
+
+	void renderCircle(const POINT_EGDE_2D& center,
+		float radio,
+		std::function<void(const POINT_EGDE_2D&, const RGB&)> set_pixel_f,
+		std::function<RGB(const POINT_EGDE_2D&)> get_color_f);
+
 	// return sequence: min_x, min_y, max_x, max_y
 	std::tuple<float, float, float, float> getRoundingBox(const Triangle& tri);
 

@@ -133,3 +133,15 @@ TEST(homogeneousNormalizeTest, twoToOne) {
 	EXPECT_FLOAT_EQ(2, result.y());
 	EXPECT_FLOAT_EQ(3, result.z());
 }
+
+TEST(insideCircleTest, inside) {
+    Vector2f point(1, 1);
+    Vector2f circle(2, 2);
+    EXPECT_TRUE(insideCircle(circle, point, 4));
+}
+
+TEST(insideCircleTest, outside) {
+    Vector2f point(1, 1);
+    Vector2f circle(10, 10);
+    EXPECT_FALSE(insideCircle(circle, point, 4));
+}

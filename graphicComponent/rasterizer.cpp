@@ -166,7 +166,7 @@ static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const E
 
 void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& view_pos) 
 {
-    auto [min_x, min_y, max_x, max_y] = g_algo::getRoundingBox(t);
+    auto [min_x, min_y, max_x, max_y] = GAlgo::getRoundingBox(t);
     for (int i = min_x; i <= std::ceil(max_x); i++)
     {
         for (int j = min_y; j < std::ceil(max_y); j++)
@@ -182,7 +182,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
             //    __debugbreak();
             //}
             auto [a, b, c, depth, view_coor_normal, view_coor_point, text_coors] = 
-                g_algo::BarycentricProperties(i, j, t.v, depths, t.normal, view_pos, t.tex_coords);
+                GAlgo::BarycentricProperties(i, j, t.v, depths, t.normal, view_pos, t.tex_coords);
             if (depth <= depth_buf[i * width + j]) {
                 continue;
             }
