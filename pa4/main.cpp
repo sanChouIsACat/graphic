@@ -8,6 +8,7 @@
 #include "window.hpp"
 #include "functional"
 #include "algo.hpp"
+#include "bSplineCurve.hpp"
 
 using namespace GAlgo;
 using namespace GComponent;
@@ -17,9 +18,16 @@ constexpr int control_point_check_radio = 20;
 constexpr int control_point_render_radio = 5;
 constexpr float sample_rate = 0.0001;
 constexpr char* window_name = "pa4";
+
 int main() 
 {
-    // global variables
+    /*
+    * global variables.All stateful algos like curves/state macheins
+    * are not responsible for resource management.
+    * Because some resources maybe shared by more than two algos.
+    * Using Ioc way of springboot maybe a good way.
+    * I'm using simpler way.
+    */ 
     using CurrentWindowT = GameWindow<Machine>;
     std::vector<POINT_EGDE_2D> control_points;
     Context ctx{ control_point_check_radio };
@@ -28,13 +36,21 @@ int main()
     auto f = [&window](int x, int y, const RGB& rgb) {
         window.set_pixel(POINT_EGDE_2D{ (float)x, (float)y, 1 }, rgb);
         };
-    BezierCurve bezierCurve{f};
     ctx.control_points = &control_points;
 
-    GameWindow<std::any>::DRAR_FUNCTION draw_curve = [&window, &bezierCurve, &control_points, &ctx]() {
+    // BSplineCurve definiton
+    BSplineCurve bSplineCurve{ f,4 };
+    GameWindow<std::any>::DRAR_FUNCTION draw_curve = [&window, &bSplineCurve, &control_points, &ctx]() {
         std::shared_lock lock(ctx.vec_mutex);
-        bezierCurve.drawCurve(sample_rate, control_points, generateRainbowColor);
+        bSplineCurve.drawCurve(sample_rate, control_points, generateRainbowColor);
         };
+
+    // To use bezier curve, uncomment these and comment previous BSplineCurve definition
+    //BezierCurve bezierCurve{ f };
+    //GameWindow<std::any>::DRAR_FUNCTION draw_curve = [&window, &bezierCurve, &control_points, &ctx]() {
+    //    std::shared_lock lock(ctx.vec_mutex);
+    //    bezierCurve.drawCurve(sample_rate, control_points, generateRainbowColor);
+    //    };
 
     GameWindow<std::any>::DRAR_FUNCTION draw_control_point = [&ctx, &window]() {
         std::shared_lock lock(ctx.vec_mutex);

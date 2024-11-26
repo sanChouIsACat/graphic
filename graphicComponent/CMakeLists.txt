@@ -26,5 +26,5 @@ target_link_libraries(
     ${OpenCV_LIBRARIES}
     common_lib_trace
 )
-target_compile_definitions(common_lib_trace PRIVATE TRACE_GRAPHICS)
+target_compile_definitions(graphic_component_trace PRIVATE TRACE_GRAPHICS)
 

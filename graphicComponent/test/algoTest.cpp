@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "algo.hpp"
 #include "bezierCurve.hpp"
+#include "bSplineCurve.hpp"
 
 using namespace GAlgo;
 std::string getAnsiColorCode(const RGB& r) {
@@ -42,6 +43,18 @@ std::vector<RGB> drawBezierCurve(const std::vector<POINT_EGDE_2D>& control_point
 	return screen;
 }
 
+std::vector<RGB> drawBSplineCurve(const std::vector<POINT_EGDE_2D>& control_points) {
+	std::vector<RGB> screen{ width * height,RGB{255,255,255} };
+	auto drawPixel = [&screen](int x, int y, const RGB& RGB) {
+		int poz = y * width + x;
+		ASSERT_TRUE(poz < width * height);
+		screen[poz] = RGB;
+		};
+	BSplineCurve bSplineCurve{ drawPixel, 10 };
+	bSplineCurve.drawCurve(0.001, control_points, generateRainbowColor);
+	return screen;
+}
+
 TEST(BezierCurveTest, LineTest) {
 	std::vector control_points{ POINT_EGDE_2D{0,0,1}, POINT_EGDE_2D{20,0,1} };
 	std::vector<RGB> screen = drawBezierCurve(control_points);
@@ -75,5 +88,23 @@ TEST(BezierCurveTest, FourBezierCurveTest) {
 			}
 		}
 	}
-	
+}
+
+TEST(BSplineCurveTest, LineTest) {
+	std::vector control_points{ POINT_EGDE_2D{0,0,1}, POINT_EGDE_2D{20,0,1} };
+	std::vector<RGB> screen = drawBSplineCurve(control_points);
+	printScreen(screen, width, height);
+	for (int i = 0; i < 21; ++i) {
+		ASSERT_FALSE(isApproxEqual(screen[i], white)) << "differ at idx" << i;
+	}
+	for (int i = 21; i < width * height; i++) {
+		ASSERT_TRUE(isApproxEqual(screen[i], white)) << "differ at idx" << i;
+	}
+}
+
+TEST(BSplineCurveTest, FourBSplineCurveTest) {
+	std::vector control_points{ POINT_EGDE_2D{0,4,1}, POINT_EGDE_2D{0,0,1},POINT_EGDE_2D{5,0,1},POINT_EGDE_2D{5,0,1}, POINT_EGDE_2D{49,0,1}, POINT_EGDE_2D{49,4,1} };
+	std::vector<RGB> screen = drawBSplineCurve(control_points);
+	printScreen(screen, width, height);
+	//TODO: add assert
 }

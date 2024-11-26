@@ -13,5 +13,4 @@ namespace GAlgo {
 		std::vector<long long> buffer;
 		static long long combination(int n, int k);
 	};
-
 }
