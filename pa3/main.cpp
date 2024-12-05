@@ -81,7 +81,7 @@ int main(int argc, const char** argv)
         }
     }
     // set sharder
-    std::vector<g_sharder::Light> light_defition = {
+    std::vector<Light> light_defition = {
     { Vector3f{500, 500, 500} ,Vector4f{-20, 20, 0 ,1} }
     };
     g_sharder::EnvPayload env{

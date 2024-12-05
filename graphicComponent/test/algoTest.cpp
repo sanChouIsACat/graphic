@@ -108,3 +108,74 @@ TEST(BSplineCurveTest, FourBSplineCurveTest) {
 	printScreen(screen, width, height);
 	//TODO: add assert
 }
+
+TEST(LightPlaneIntersectionTest, SimpleTest) {
+	Light l{
+		{255,255,255},
+		{0,0,2,1},
+		{0,0,-1,0}
+	};
+	Plane plane{
+		{1,0,0,0},
+		{0,1,0,0},
+		{0,0,0,1},
+	};
+	Vector3f t = GAlgo::computeLightPlaneInterSection(l, plane);
+	EXPECT_TRUE(t.isApprox(Vector3f{ 2,0,0 }));
+}
+
+AABB aabb{
+	POINT_EGDE_3D{0,0,1,1},
+	POINT_EGDE_3D{1,0,1,1},
+	POINT_EGDE_3D{1,1,1,1},
+	POINT_EGDE_3D{0,1,1,1},
+	POINT_EGDE_3D{0,0,0,1},
+	POINT_EGDE_3D{1,0,0,1},
+	POINT_EGDE_3D{1,1,0,1},
+	POINT_EGDE_3D{0,1,0,1},
+};
+
+TEST(LightAABBIntersectionTest, intersectionTest) {
+	Light l{
+		{255,255,255},
+		{0.5,0.5,2,1},
+		{0,0,-1,0}
+	};
+	auto [res,value] = GAlgo::computeLightAABBInterSection(l, aabb);
+	EXPECT_TRUE(res);
+	GTEST_LOG_(INFO) << "slove:\n" << value;
+	EXPECT_TRUE(((Vector3f)value.col(0)).isApprox(Vector3f{ 1,0.5,0.5 }));
+	EXPECT_TRUE(((Vector3f)value.col(1)).isApprox(Vector3f{ 2,0.5,0.5 }));
+}
+
+TEST(LightAABBIntersectionTest, notIntersectionTest) {
+	Light l{
+		{255,255,255},
+		{0,0,2,1},
+		{0,1,-1,0}
+	};
+	Plane plane{
+		{1,0,0,0},
+		{0,1,0,0},
+		{0,0,0,1},
+	};
+	auto [res, value] = GAlgo::computeLightAABBInterSection(l, aabb);
+	EXPECT_FALSE(res);
+	GTEST_LOG_(INFO) << "slove:\n" << value;
+}
+
+TEST(LightAABBIntersectionTest, parallelTest) {
+	Light l{
+		{255,255,255},
+		{0,0,2,1},
+		{0,1,0,0}
+	};
+	Plane plane{
+		{1,0,0,0},
+		{0,1,0,0},
+		{0,0,0,1},
+	};
+	auto [res, value] = GAlgo::computeLightAABBInterSection(l, aabb);
+	EXPECT_FALSE(res);
+	GTEST_LOG_(INFO) << "slove:\n" << value;
+}

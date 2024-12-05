@@ -1,6 +1,7 @@
 #pragma once
-#include<type_traits>
-#include<ostream>
+#include <type_traits>
+#include <ostream>
+#include "eigen3/Eigen/Eigen"
 namespace g_type_traits {
     // use to check type T whether supports std::ostream << T
     template <typename T, typename = void>
@@ -141,4 +142,19 @@ namespace g_type_traits {
     template<typename T>
     inline constexpr bool has_norm_function = has_norm_functions<T>::value;
 
+
+    // trait eigen matrix's dimensions
+    template <typename T>
+    struct eigen_matrix_dimension_trait {
+        static constexpr int row_num = -1;
+        static constexpr int col_num = -1;
+        using scalar = void;
+    };
+
+    template <typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
+    struct eigen_matrix_dimension_trait<Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>> {
+        static constexpr int row_num = _Rows;
+        static constexpr int col_num = _Cols;
+        using scalar = _Scalar;
+    };
 }

@@ -17,5 +17,6 @@ target_link_libraries(
   PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main
   PRIVATE common_lib_trace
 )
+target_compile_definitions(common_lib_test PRIVATE TRACE_GRAPHICS)
 
 add_test(AllTestsInMain common_lib_test)

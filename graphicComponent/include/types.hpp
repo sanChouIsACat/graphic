@@ -5,6 +5,24 @@ using POINT_EGDE_3D = Eigen::Vector4f;
 using POINT_EGDE_2D = Eigen::Vector3f;
 using RGB = Eigen::Vector3f;
 using RGB_INT = Eigen::Vector3i;
+struct Plane
+{
+    POINT_EGDE_3D basis1;
+    POINT_EGDE_3D basis2;
+    POINT_EGDE_3D origin;
+};
+// from 1 to 4, rotate by couterclockwise
+struct AABB
+{
+    POINT_EGDE_3D top_1;
+    POINT_EGDE_3D top_2;
+    POINT_EGDE_3D top_3;
+    POINT_EGDE_3D top_4;
+    POINT_EGDE_3D bottom_1;
+    POINT_EGDE_3D bottom_2;
+    POINT_EGDE_3D bottom_3;
+    POINT_EGDE_3D bottom_4;
+};
 namespace type_comparer {
     struct Vector3fHash {
         size_t operator()(const Eigen::Vector3f& v) const {
@@ -22,23 +40,29 @@ namespace type_comparer {
         }
     };
 }
+struct Light {
+    RGB rgb;
+    POINT_EGDE_3D position;
+    POINT_EGDE_3D dir;
+    Light(const RGB& rgb,
+        const POINT_EGDE_3D& position,
+        const POINT_EGDE_3D& dir) :rgb(rgb), position(position),dir(dir) {};
+    Light(const Light& b) {
+        this->rgb = b.rgb;
+        this->position = b.position;
+        this->dir = dir;
+    }
+
+    Light(Light&& b) noexcept {
+        this->rgb = std::move(b.rgb);
+        this->position = std::move(b.position);
+        this->dir = std::move(b.dir);
+    }
+};
 
 
 namespace g_sharder {
-    struct Light {
-        RGB rgb;
-        POINT_EGDE_3D position;
-        Light(const RGB& rgb, const POINT_EGDE_3D& position) :rgb(rgb), position(position) {};
-        Light(const Light& b) {
-            this->rgb = b.rgb;
-            this->position = b.position;
-        }
-
-        Light(Light&& b) noexcept {
-            this->rgb = std::move(b.rgb);
-            this->position = std::move(b.position);
-        }
-    };
+    
     struct EnvPayload {
         std::vector<Light> lights;
         RGB env_light;

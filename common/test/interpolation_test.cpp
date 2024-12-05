@@ -1,5 +1,6 @@
 #include "interpolation.hpp"
 #include <gtest/gtest.h>
+#include "g_type_traits.hpp"
 
 using namespace interpolation;
 using namespace Eigen;
@@ -37,9 +38,9 @@ TEST(insideTriangleTEst, notInsideTest) {
 
 TEST(computeBarycentric2DTest, edgeTest) {
 	std::array<Vector4f, 3> edges{
-		Vector4f{-2, 0, 123, 1},
-		Vector4f{2, 0, 123, 1},
-		Vector4f{-2, 3, 123, 1},
+		Vector4f{-2, 0, 0, 1},
+		Vector4f{2, 0, 0, 1},
+		Vector4f{-2, 3, 0, 1},
 	};
 	auto [c1, c2, c3] = computeBarycentric2D(1, 0, edges);
 	ASSERT_FLOAT_EQ(c1, 0.25);
@@ -49,9 +50,9 @@ TEST(computeBarycentric2DTest, edgeTest) {
 
 TEST(computeBarycentric2DTest, edgeTest2) {
 	std::array<Vector4f, 3> edges{
-		Vector4f{-2, 0, 123, 1},
-		Vector4f{2, 0, 123, 1},
-		Vector4f{-2, 3, 123, 1},
+		Vector4f{-2, 0, 0, 1},
+		Vector4f{2, 0, 0, 1},
+		Vector4f{-2, 3, 0, 1},
 	};
 
 	auto [c1, c2, c3] = computeBarycentric2D(-2, 1.5, edges);
@@ -62,15 +63,42 @@ TEST(computeBarycentric2DTest, edgeTest2) {
 
 TEST(computeBarycentric2DTest, insideTest) {
 	std::array<Vector4f, 3> edges{
-		Vector4f{-2, 0, 123, 1},
-		Vector4f{2, 0, 123, 1},
-		Vector4f{-2, 3, 123, 1},
+		Vector4f{-2, 0, 0, 1},
+		Vector4f{2, 0, 0, 1},
+		Vector4f{-2, 3, 0, 1},
 	};
 
 	auto [c1, c2, c3] = computeBarycentric2D(0, 1.5, edges);
 	ASSERT_FLOAT_EQ(c1, 0);
 	ASSERT_FLOAT_EQ(c2, 0.5);
 	ASSERT_FLOAT_EQ(c3, 0.5);
+}
+
+TEST(computeBarycentricTest, insideTest) {
+	Vector4f a = Vector4f{ -2, 0, 124, 1 };
+	Vector4f b = Vector4f{ 2, 0, 145, 1 };
+	Vector4f c = Vector4f{ -2, 3, 82, 1 };
+	Vector4f edges[3]{a,b,c};
+	Vector4f point = 0.6 * (b - a) + 0.6 * (c - a) + a;
+	GTEST_LOG_(INFO) <<"da:\n" << point - a;
+	GTEST_LOG_(INFO) <<"ba:\n" << b - a;
+	GTEST_LOG_(INFO) <<"ca:\n" << c - a;
+	auto [c1, c2, c3] = computeBarycentric(point, edges);
+	ASSERT_NEAR(c1, -0.2, 1e-03);
+	ASSERT_NEAR(c2, 0.6, 1e-03);
+	ASSERT_NEAR(c3, 0.6, 1e-03);
+}
+
+TEST(computeBarycentricTest, notInsideTest) {
+	Vector4f a = Vector4f{ -2, 0, 124, 1 };
+	Vector4f b = Vector4f{ 2, 0, 145, 1 };
+	Vector4f c = Vector4f{ -2, 3, 82, 1 };
+	Vector4f edges[3]{ a,b,c };
+	Vector4f point = (b - a).cross3(c - a) + a;
+	auto [c1, c2, c3] = computeBarycentric(point, edges);
+	ASSERT_NEAR(c1, -1, 1e-03);
+	ASSERT_NEAR(c2, -1, 1e-03);
+	ASSERT_NEAR(c3, -1, 1e-03);
 }
 
 

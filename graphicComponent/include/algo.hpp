@@ -66,4 +66,18 @@ namespace GAlgo {
 			((interploateProperties(a, b, c, properties[0], properties[1], properties[2]))) ...
 		);
 	}
+	/*
+	* Suppose point d in the give plane, we should have the equation:
+	* c + t * d = a + k_1 * b_1 + k_2 * b_2
+	* c is the poztion of light, d is the direction of light.
+	* a is the plane's origin, b_1 is the first axis, b_2 is the second axis.
+	* Return: a[0]:t, a[1]:k_1, a[2]:k_2.
+	* If light is parallel with plane,return -1,-1,-1
+	*/
+	Eigen::Vector3f computeLightPlaneInterSection(const Light& light, const Plane& plane);
+
+	/*
+	* Solve plane one by one.
+	*/
+	std::tuple<bool,Eigen::Matrix<float,3,2>> computeLightAABBInterSection(const Light& light, const AABB& aabb);
 }
