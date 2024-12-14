@@ -2,6 +2,7 @@ find_package(GTest CONFIG REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 include_directories(../../common/include)
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../include")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/../include/debug")
 
 
 add_executable(
@@ -10,6 +11,7 @@ add_executable(
   eventLoopTest.cpp
   windowTest.cpp
   algoTest.cpp
+  lineDebuggerTest.cpp
 )
 
 target_link_libraries(

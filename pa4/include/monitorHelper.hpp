@@ -1,6 +1,6 @@
 //#pragma once
 //#include <vector>
-//namespace g_os {
+// namespace g_os {
 //    struct MonitorInfo {
 //        int x;
 //        int y;

@@ -22,7 +22,7 @@ include_directories("C:/Program Files (x86)/Eigen3/include")
 # add boost libs.
 include_directories("C:/Program Files (x86)/boost_1_86_0")
 
-# add system libs
+# add global libs
 include_directories("./lib/include")
 
 # common code like interpolation, logger, debugger, etc.
@@ -44,3 +44,4 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pa1)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pa2)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pa3)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pa4)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/opengl)
