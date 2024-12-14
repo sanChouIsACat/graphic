@@ -11,8 +11,8 @@
 #include "algebra.hpp"
 #include "types.hpp"
 #include <intrin.h> 
-
-rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
+using namespace GTypes;
+GComponent::pos_buf_id GComponent::rasterizer::load_positions(const std::vector<Eigen::Vector3f> &positions)
 {
     auto id = get_next_id();
     pos_buf.emplace(id, positions);
@@ -20,7 +20,7 @@ rst::pos_buf_id rst::rasterizer::load_positions(const std::vector<Eigen::Vector3
     return {id};
 }
 
-rst::ind_buf_id rst::rasterizer::load_indices(const std::vector<Eigen::Vector3i> &indices)
+GComponent::ind_buf_id GComponent::rasterizer::load_indices(const std::vector<Eigen::Vector3i> &indices)
 {
     auto id = get_next_id();
     ind_buf.emplace(id, indices);
@@ -28,7 +28,7 @@ rst::ind_buf_id rst::rasterizer::load_indices(const std::vector<Eigen::Vector3i>
     return {id};
 }
 
-rst::col_buf_id rst::rasterizer::load_colors(const std::vector<Eigen::Vector3f> &cols)
+GComponent::col_buf_id GComponent::rasterizer::load_colors(const std::vector<Eigen::Vector3f> &cols)
 {
     auto id = get_next_id();
     col_buf.emplace(id, cols);
@@ -36,7 +36,7 @@ rst::col_buf_id rst::rasterizer::load_colors(const std::vector<Eigen::Vector3f> 
     return {id};
 }
 
-rst::col_buf_id rst::rasterizer::load_normals(const std::vector<Eigen::Vector3f>& normals)
+GComponent::col_buf_id GComponent::rasterizer::load_normals(const std::vector<Eigen::Vector3f>& normals)
 {
     auto id = get_next_id();
     nor_buf.emplace(id, normals);
@@ -72,7 +72,7 @@ static std::tuple<float, float, float> computeBarycentric2D(float x, float y, co
     return {c1,c2,c3};
 }
 
-void rst::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
+void GComponent::rasterizer::draw(std::vector<Triangle *> &TriangleList) {
 
     const Eigen::Matrix4f mv = view * model;
     const Eigen::Matrix4f mvp = projection * mv;
@@ -164,7 +164,7 @@ static Eigen::Vector2f interpolate(float alpha, float beta, float gamma, const E
 
 //Screen space rasterization
 
-void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& view_pos) 
+void GComponent::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& view_pos) 
 {
     auto [min_x, min_y, max_x, max_y] = GAlgo::getRoundingBox(t);
     for (int i = min_x; i <= std::ceil(max_x); i++)
@@ -199,7 +199,7 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
     }
 }
 
-//void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& view_pos) {
+//void GComponent::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& view_pos) {
 //    auto v = t.toVector4();
 //    float min_x = std::numeric_limits<float>::max();
 //    float min_y = std::numeric_limits<float>::max();
@@ -244,44 +244,44 @@ void rst::rasterizer::rasterize_triangle(const Triangle& t, const std::array<Eig
 //    // TODO : set the current pixel (use the set_pixel function) to the color of the triangle (use getColor function) if it should be painted.
 //}
 
-void rst::rasterizer::set_line_draw_algo(std::function<void(const Eigen::Vector3f&, const Eigen::Vector3f&, std::function<void(const Eigen::Vector3f&)>)> draw_algo)
+void GComponent::rasterizer::set_line_draw_algo(std::function<void(const Eigen::Vector3f&, const Eigen::Vector3f&, std::function<void(const Eigen::Vector3f&)>)> draw_algo)
 {
     this->draw_line = draw_algo;
 }
 
-void rst::rasterizer::set_model(const Eigen::Matrix4f& m)
+void GComponent::rasterizer::set_model(const Eigen::Matrix4f& m)
 {
     model = m;
 }
 
-void rst::rasterizer::set_view(const Eigen::Matrix4f& v)
+void GComponent::rasterizer::set_view(const Eigen::Matrix4f& v)
 {
     view = v;
 }
 
-void rst::rasterizer::set_projection(const Eigen::Matrix4f& p)
+void GComponent::rasterizer::set_projection(const Eigen::Matrix4f& p)
 {
     projection = p;
 }
 
-void rst::rasterizer::clear(rst::Buffers buff)
+void GComponent::rasterizer::clear(GComponent::Buffers buff)
 {
-    if ((buff & rst::Buffers::Color) == rst::Buffers::Color)
+    if ((buff & GComponent::Buffers::Color) == GComponent::Buffers::Color)
     {
         std::fill(frame_buf.begin(), frame_buf.end(), Eigen::Vector3f{0, 0, 0});
     }
-    if ((buff & rst::Buffers::Depth) == rst::Buffers::Depth)
+    if ((buff & GComponent::Buffers::Depth) == GComponent::Buffers::Depth)
     {
         std::fill(depth_buf.begin(), depth_buf.end(), - std::numeric_limits<float>::infinity());
     }
 }
 
-int rst::rasterizer::get_index(int x, int y)
+int GComponent::rasterizer::get_index(int x, int y)
 {
     return (height-y)*width + x;
 }
 
-void rst::rasterizer::set_pixel(const Vector2i &point, const Eigen::Vector3f &color)
+void GComponent::rasterizer::set_pixel(const Vector2i &point, const Eigen::Vector3f &color)
 {
     //old index: auto ind = point.y() + point.x() * width;
     int ind = (height-point.y())*width + (width - point.x());

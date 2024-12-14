@@ -4,6 +4,17 @@
 #include "bSplineCurve.hpp"
 
 using namespace GAlgo;
+using namespace GTypes;
+AABB aabb{
+POINT_EGDE_3D{0,0,1,1},
+POINT_EGDE_3D{1,0,1,1},
+POINT_EGDE_3D{1,1,1,1},
+POINT_EGDE_3D{0,1,1,1},
+POINT_EGDE_3D{0,0,0,1},
+POINT_EGDE_3D{1,0,0,1},
+POINT_EGDE_3D{1,1,0,1},
+POINT_EGDE_3D{0,1,0,1},
+};
 std::string getAnsiColorCode(const RGB& r) {
     // ANSI ÑÕÉ«Âë¸ñÊ½: "\033[38;2;<r>;<g>;<b>m"
 	return "\033[38;2;" + std::to_string((int)r.x()) +
@@ -123,17 +134,6 @@ TEST(LightPlaneIntersectionTest, SimpleTest) {
 	Vector3f t = GAlgo::computeLightPlaneInterSection(l, plane);
 	EXPECT_TRUE(t.isApprox(Vector3f{ 2,0,0 }));
 }
-
-AABB aabb{
-	POINT_EGDE_3D{0,0,1,1},
-	POINT_EGDE_3D{1,0,1,1},
-	POINT_EGDE_3D{1,1,1,1},
-	POINT_EGDE_3D{0,1,1,1},
-	POINT_EGDE_3D{0,0,0,1},
-	POINT_EGDE_3D{1,0,0,1},
-	POINT_EGDE_3D{1,1,0,1},
-	POINT_EGDE_3D{0,1,0,1},
-};
 
 TEST(LightAABBIntersectionTest, intersectionTest) {
 	Light l{

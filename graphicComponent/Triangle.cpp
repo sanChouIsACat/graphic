@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include "types.hpp"
+using namespace GTypes;
 Triangle::Triangle() {
     v[0] << 0,0,0,1;
     v[1] << 0,0,0,1;
@@ -18,6 +19,17 @@ Triangle::Triangle() {
     tex_coords[0] << 0.0, 0.0, 0.0;
     tex_coords[1] << 0.0, 0.0, 0.0;
     tex_coords[2] << 0.0, 0.0, 0.0;
+}
+
+
+std::unique_ptr<LinePrimitive> GTypes::Triangle::operator*(Eigen::Matrix4f transform) const
+{
+    auto ret_p = std::make_unique<Triangle>();
+    Triangle& ret = *ret_p;
+    ret.v[0] = transform * this->v[0];
+    ret.v[1] = transform * this->v[1];
+    ret.v[2] = transform * this->v[2];
+    return ret_p;
 }
 
 void Triangle::setVertex(int ind, POINT_EGDE_3D ver){

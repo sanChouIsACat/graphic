@@ -30,7 +30,7 @@ int main()
     */ 
     using CurrentWindowT = GameWindow<Machine>;
     std::vector<POINT_EGDE_2D> control_points;
-    Context ctx{ control_point_check_radio };
+    CameraMachineContext ctx{ control_point_check_radio };
     Machine machine{ ctx };
     CurrentWindowT window{width, height, window_name, machine};
     auto f = [&window](int x, int y, const RGB& rgb) {

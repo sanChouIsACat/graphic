@@ -1,5 +1,5 @@
 #include "algo.hpp"
-
+using namespace GTypes;
 RGB GAlgo::generateRainbowColor(float t) {
 	// 将 t 映射到 HSV 色相 (Hue) 范围 [0, 360]
 	float hue = 360.0f * t;

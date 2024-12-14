@@ -33,7 +33,7 @@ namespace GAlgo {
 		int p;
 
 		void computeKnotVector(int n, int p);
-		float coxDeBoor(float t, int i, int k);
+		float coxDeBoor(float t, int i, int k);	
 		// for debugging
 		void BSplineCurve::printBuffer(float t);
 

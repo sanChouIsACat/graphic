@@ -10,7 +10,7 @@
 #include "algebra.hpp"
 
 namespace sc = boost::statechart;
-struct Context
+struct CameraMachineContext
 {
     std::vector<POINT_EGDE_2D>* control_points;
     std::shared_mutex vec_mutex;
@@ -18,7 +18,7 @@ struct Context
     int radio;
     // currently moving point
     std::vector<POINT_EGDE_2D>::iterator cached_moving_point;
-    Context(int radio, std::vector<POINT_EGDE_2D>* contorl_points = nullptr) :
+    CameraMachineContext(int radio, std::vector<POINT_EGDE_2D>* contorl_points = nullptr) :
         radio(radio), control_points(contorl_points) {};
 };
 
@@ -30,8 +30,8 @@ struct CreatingPoint;
 struct TrivialEvent : public sc::event<TrivialEvent> {};
 
 struct Machine : public boost::statechart::state_machine<Machine, InitState> {
-	explicit Machine(Context& ctx) : ctx(ctx){};
-	Context& ctx;
+	explicit Machine(CameraMachineContext& ctx) : ctx(ctx){};
+	CameraMachineContext& ctx;
 };
 
 struct InitState : public boost::statechart::state<InitState, Machine> {
@@ -40,7 +40,7 @@ struct InitState : public boost::statechart::state<InitState, Machine> {
     typedef sc::custom_reaction<GComponent::MouseKeyboardEvent> reactions;
     
     boost::statechart::result react(const GComponent::MouseKeyboardEvent& event) {
-        Context& ctx = outermost_context().ctx;
+        CameraMachineContext& ctx = outermost_context().ctx;
         if (event.id == cv::EVENT_LBUTTONDOWN) {
             POINT_EGDE_2D toggle_point{ (float)event.x, (float)event.y,1 };
             
@@ -74,7 +74,7 @@ struct ModifyingControlPoints : public boost::statechart::state<ModifyingControl
     typedef sc::custom_reaction<GComponent::MouseKeyboardEvent> reactions;
 
     boost::statechart::result react(const GComponent::MouseKeyboardEvent& event) {
-        Context& ctx = outermost_context().ctx;
+        CameraMachineContext& ctx = outermost_context().ctx;
         if (event.id == cv::EVENT_MOUSEMOVE) {
             *ctx.cached_moving_point = POINT_EGDE_2D{ (float)event.x, (float)event.y, 1 };
             return discard_event();
@@ -97,10 +97,10 @@ struct CreatingOrDoNothing : public boost::statechart::state<CreatingOrDoNothing
             return discard_event();
         }
 
-        Context& ctx = outermost_context().ctx;
+        CameraMachineContext& ctx = outermost_context().ctx;
         if (event.id == cv::EVENT_LBUTTONUP) {
             POINT_EGDE_2D current_point { (float)event.x,(float)event.y,1 };
-            Context& my_ctx = outermost_context().ctx;
+            CameraMachineContext& my_ctx = outermost_context().ctx;
             auto& control_points = *my_ctx.control_points;
             std::unique_lock lock(my_ctx.vec_mutex);
             int size = control_points.size();

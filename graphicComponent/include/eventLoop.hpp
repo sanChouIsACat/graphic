@@ -4,6 +4,7 @@
 #include <string>
 #include <mutex>
 #include <thread>
+#include "logger.hpp"
 
 namespace GComponent {
 	template<typename... Args>
@@ -77,11 +78,7 @@ namespace GComponent {
 				mutex.unlock();
 				return false;
 			}
-			auto test = eventLoopInternal::EventFunctionPack{
-				std::bind(event_function,
-					std::forward<Args>(args)...
-					),
-				event_name };
+			//G_LOGGER_INFO("push event:%s", event_name.c_str());
 			ring_buffer.push_back(
 				eventLoopInternal::EventFunctionPack{
 				std::bind(event_function,
@@ -112,8 +109,10 @@ namespace GComponent {
 					continue;
 				}
 				eventLoopInternal::EventFunctionPack& buffer = ring_buffer.front();
+				//G_LOGGER_INFO("comsume event:%s", buffer.name.c_str());
 				buffer.function();
 				ring_buffer.pop_front();
+				mutex.unlock();
 			}
 		}
 		

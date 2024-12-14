@@ -11,8 +11,12 @@ include_directories(/usr/local/include)
 include_directories(../common/include)
 include_directories(./include)
 
-file(GLOB G_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-file(GLOB G_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+file(GLOB G_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp" 
+"${CMAKE_CURRENT_SOURCE_DIR}/debug/*.cpp"
+)
+file(GLOB G_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
+"${CMAKE_CURRENT_SOURCE_DIR}/include/debug/*.hpp"
+)
 
 add_library(graphic_component ${G_SOURCES} ${G_HEADERS})
 add_library(graphic_component_trace ${G_SOURCES} ${G_HEADERS})

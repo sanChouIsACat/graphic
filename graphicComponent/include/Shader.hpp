@@ -20,7 +20,7 @@ namespace g_sharder {
             env_payload(std::forward<U>(env)) {};
 
         template<typename T>
-		typename std::enable_if_t<std::is_same_v<std::decay_t<T>, std::vector<Light>>, Shader>
+		typename std::enable_if_t<std::is_same_v<std::decay_t<T>, std::vector<GTypes::Light>>, Shader>
             set_lights(T&& light) {
 			this->env_payload.lights = std::forward<T>(light);
 		}

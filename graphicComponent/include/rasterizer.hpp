@@ -13,7 +13,7 @@
 
 using namespace Eigen;
 
-namespace rst
+namespace GComponent
 {
     enum class Buffers
     {
@@ -90,12 +90,12 @@ namespace rst
         void clear(Buffers buff);
 
         void draw(pos_buf_id pos_buffer, ind_buf_id ind_buffer, col_buf_id col_buffer, Primitive type);
-        void draw(std::vector<Triangle*>& TriangleList);
+        void draw(std::vector<GTypes::Triangle*>& TriangleList);
 
         std::vector<Eigen::Vector3f>& frame_buffer() { return frame_buf; }
 
     private:
-        void rasterize_triangle(const Triangle& t, const std::array<Eigen::Vector4f, 3>& world_pos);
+        void rasterize_triangle(const GTypes::Triangle& t, const std::array<Eigen::Vector4f, 3>& world_pos);
 
         // VERTEX SHADER -> MVP -> Clipping -> /.W -> VIEWPORT -> DRAWLINE/DRAWTRI -> FRAGSHADER
 

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <iostream>
 #include <type_traits>
+#include <thread>
 
 // use to check type T whether supports std::ostream << T
 template <typename T, typename = void>
@@ -35,12 +36,17 @@ std::string EigenStructToString(const T& obj)
 	return oss.str();
 }
 
+inline std::string getCurrentThreadString() {
+    std::ostringstream oss;
+    oss << std::this_thread::get_id();  // 将 thread::id 输出到字符串流
+    return oss.str();  // 返回字符串
+}
 #define G_LOGGER(color_left, level, format, ...) do { \
     std::time_t now = std::time(nullptr); \
     std::tm* localTime = std::localtime(&now); \
     char timeStr[9]; \
     std::strftime(timeStr, sizeof(timeStr), "%H:%M:%S", localTime); \
-    std::printf(color_left "[%s %s] [%s:%d]\033[0m: " format "\n", level, timeStr, __FILE__, __LINE__, __VA_ARGS__); \
+    std::printf(color_left "[%s %s %s] [%s:%d]\033[0m: " format "\n", level, getCurrentThreadString().c_str(), timeStr, __FILE__, __LINE__, __VA_ARGS__); \
 } while(0)
 
 #define G_LOGGER_ERROR(format, ...) G_LOGGER("\033[31m", "ERROR", format, __VA_ARGS__)

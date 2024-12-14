@@ -15,7 +15,7 @@ namespace GAlgo {
 		std::function<RGB(const POINT_EGDE_2D&)> get_color_f);
 
 	// return sequence: min_x, min_y, max_x, max_y
-	std::tuple<float, float, float, float> getRoundingBox(const Triangle& tri);
+	std::tuple<float, float, float, float> getRoundingBox(const GTypes::Triangle& tri);
 
 	//namespace _internal {
 	//	template<typename T, std::size_t N>
@@ -74,10 +74,10 @@ namespace GAlgo {
 	* Return: a[0]:t, a[1]:k_1, a[2]:k_2.
 	* If light is parallel with plane,return -1,-1,-1
 	*/
-	Eigen::Vector3f computeLightPlaneInterSection(const Light& light, const Plane& plane);
+	Eigen::Vector3f computeLightPlaneInterSection(const GTypes::Light& light, const GTypes::Plane& plane);
 
 	/*
 	* Solve plane one by one.
 	*/
-	std::tuple<bool,Eigen::Matrix<float,3,2>> computeLightAABBInterSection(const Light& light, const AABB& aabb);
+	std::tuple<bool,Eigen::Matrix<float,3,2>> computeLightAABBInterSection(const GTypes::Light& light, const GTypes::AABB& aabb);
 }

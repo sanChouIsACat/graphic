@@ -22,7 +22,7 @@ namespace GComponent {
 			gameWindow(gameWindow) {};
 	};
 	template<typename StateMachine>
-	class GameWindow: public FrameBuffer {
+class GameWindow: public FrameBuffer {
 	public:
 		using DRAR_FUNCTION = std::function<void()>;
 		using DRAR_FUNCTIONS = std::vector<DRAR_FUNCTION>;

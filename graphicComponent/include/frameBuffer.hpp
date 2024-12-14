@@ -13,10 +13,18 @@ namespace GComponent {
         }
         void set_pixel(const POINT_EGDE_2D& point, const RGB& color)
         {
+            if (point.y() >= width || point.x() >= height || point.x() < 0 || point.y() < 0) {
+                return;
+            }
             //old index: auto ind = point.y() + point.x() * width;
             int ind = point.y() * width + point.x();
             frame_buf[ind] = color;
         }
-
+        int getWidth() {
+            return width;
+        }
+        int getHeight() {
+            return height;
+        }
     };
 }
