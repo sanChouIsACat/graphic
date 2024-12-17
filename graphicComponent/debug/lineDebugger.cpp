@@ -15,7 +15,7 @@ void LineDebugger::compute_mvp() {
   compute_event_loop.add_event(
       (std::function<void()>)std::bind(&LineDebugger::compute_mvp, this),
       "compute");
-  Eigen::Matrix4f view = camera.getAndUpdateViewTransformMatrix();
+  Eigen::Matrix4f view = camera.getViewTransformMatrix();
   if (view == view_transform_cache) {
     return;
   }

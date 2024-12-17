@@ -1,7 +1,9 @@
 #pragma once
 #include "camera.hpp"
 #include "cameraControlI.hpp"
+#include "transformation.hpp"
 #include "types.hpp"
+
 namespace GComponent {
 // No Acceleration for rotate and movement
 class LinearCameraControl : public CameraControlI {
@@ -12,10 +14,20 @@ public:
   void keyBoardX(int x, long long timestamp) override;
   void keyBoardZ(int y, long long timestamp) override;
   void mouse(int x, int y);
+  void resize(int width, int height);
+  void setEnterCoords(int x, int y);
 
 private:
-  void computeMoveStep(long long &ratio, long long current_timestamp,
-                       long long &timestamp, int &screen_len, int offset);
+  unsigned int box_x_len_buffer;
+  unsigned int box_y_len_buffer;
+  unsigned int box_z_len_buffer;
+  float computeMoveStep(int sign, long long &ratio, long long current_timestamp,
+                        long long &timestamp, unsigned int &screen_len,
+                        int offset);
+
+public:
+  // Camera
+  Camera &camera;
 
 private:
   // the volumn of whole scene
@@ -38,8 +50,5 @@ private:
   long long last_time_z_press;
   // the interval that two press will be consider as dependent event
   long long press_threshlod;
-
-  // Camera
-  Camera &camera;
 };
 } // namespace GComponent

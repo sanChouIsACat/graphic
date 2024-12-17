@@ -17,10 +17,5 @@ target_link_libraries(common_libs INTERFACE
 )
 
 add_subdirectory(basicTexture)
-#target_link_options(common_libs interface /NODEFAULTLIB:MSVCRT)
-# # 链接库
-# target_link_libraries(OpenGLApp
-#     OpenGL::GL
-#     glfw # 如果通过 vcpkg 安装的
-# )
+add_subdirectory(cameraControl)
 

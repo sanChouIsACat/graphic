@@ -10,5 +10,10 @@ public:
   virtual void keyBoardZ(int y, long long timestamp) = 0;
   // mouse movement(usually means rotate cameras)
   virtual void mouse(int x, int y) = 0;
+  // window resize
+  virtual void resize(int width, int height) = 0;
+  // when mouse move into screen
+  virtual void setEnterCoords(int x, int y) = 0;
+  ;
 };
 } // namespace GComponent

@@ -27,27 +27,28 @@ struct AABB {
   POINT_EGDE_3D bottom_4;
   AABB() = default;
   // Constructor to initialize AABB
-  AABB(const POINT_EGDE_3D &minPoint, const POINT_EGDE_3D &maxPoint) {
+  AABB(const POINT_EGDE_3D &leftButtom, const POINT_EGDE_3D &rightTop) {
     // Bottom face
-    bottom_1 = POINT_EGDE_3D(minPoint.x(), minPoint.y(), minPoint.z(),
+    bottom_1 = POINT_EGDE_3D(leftButtom.x(), leftButtom.y(), rightTop.z(),
                              1); // (minX, minY, minZ)
-    bottom_2 = POINT_EGDE_3D(maxPoint.x(), minPoint.y(), minPoint.z(),
+    bottom_2 = POINT_EGDE_3D(leftButtom.x(), leftButtom.y(), leftButtom.z(),
                              1); // (maxX, minY, minZ)
-    bottom_3 = POINT_EGDE_3D(maxPoint.x(), maxPoint.y(), minPoint.z(),
+    bottom_3 = POINT_EGDE_3D(rightTop.x(), leftButtom.y(), leftButtom.z(),
                              1); // (maxX, maxY, minZ)
-    bottom_4 = POINT_EGDE_3D(minPoint.x(), maxPoint.y(), minPoint.z(),
+    bottom_4 = POINT_EGDE_3D(rightTop.x(), leftButtom.y(), rightTop.z(),
                              1); // (minX, maxY, minZ)
 
-    // Top face
-    top_1 = POINT_EGDE_3D(minPoint.x(), minPoint.y(), maxPoint.z(),
+    // Top face (counterclockwise from top-left)
+    top_1 = POINT_EGDE_3D(leftButtom.x(), rightTop.y(), rightTop.z(),
                           1); // (minX, minY, maxZ)
-    top_2 = POINT_EGDE_3D(maxPoint.x(), minPoint.y(), maxPoint.z(),
-                          1); // (maxX, minY, maxZ)
-    top_3 = POINT_EGDE_3D(maxPoint.x(), maxPoint.y(), maxPoint.z(),
-                          1); // (maxX, maxY, maxZ)
-    top_4 = POINT_EGDE_3D(minPoint.x(), maxPoint.y(), maxPoint.z(),
+    top_2 = POINT_EGDE_3D(leftButtom.x(), rightTop.y(), leftButtom.z(),
                           1); // (minX, maxY, maxZ)
+    top_3 = POINT_EGDE_3D(rightTop.x(), rightTop.y(), leftButtom.z(),
+                          1); // (maxX, maxY, maxZ)
+    top_4 = POINT_EGDE_3D(rightTop.x(), rightTop.y(), rightTop.z(),
+                          1); // (maxX, minY, maxZ)
   }
+
   AABB(const POINT_EGDE_3D &t1, const POINT_EGDE_3D &t2,
        const POINT_EGDE_3D &t3, const POINT_EGDE_3D &t4,
        const POINT_EGDE_3D &b1, const POINT_EGDE_3D &b2,
@@ -61,15 +62,14 @@ struct Vector3fHash {
     size_t h1 = std::hash<float>{}(v.x());
     size_t h2 = std::hash<float>{}(v.y());
     size_t h3 = std::hash<float>{}(v.z());
-    return h1 ^ (h2 << 1) ^ (h3 << 2); // 合并哈希值
+    return h1 ^ (h2 << 1) ^ (h3 << 2);
   }
 };
 
-// 自定义比较函数对象，用于 Eigen::Vector3f 类型
 struct Vector3fEqual {
   bool operator()(const Eigen::Vector3f &lhs,
                   const Eigen::Vector3f &rhs) const {
-    return lhs.isApprox(rhs); // 使用 Eigen 的 isApprox 进行近似比较
+    return lhs.isApprox(rhs);
   }
 };
 } // namespace type_comparer

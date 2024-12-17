@@ -9,7 +9,6 @@ private:
 
 private:
   CameraPoint camera_point;
-  Eigen::Matrix4f old_view_transform;
 
 public:
   Camera();
@@ -19,11 +18,9 @@ public:
   void rotateByX(float angle);
   void rotateByY(float angle);
   void rotateByZ(float angle);
-  // get current camera transform matrix and update carema coordinates systems
-  // to new one
-  Eigen::MatrixX4f getAndUpdateViewTransformMatrix();
   // get origin(the same as last time getAndUpdateViewTransformMatrix returned)
   // camera transform matrix
   Eigen::MatrixX4f getViewTransformMatrix();
+  Eigen::MatrixX4f getViewTransformBackMatrix();
 };
 } // namespace GComponent

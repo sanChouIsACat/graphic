@@ -8,7 +8,6 @@ view::generateOrthogonalProjection(const Eigen::Vector4f &down_left,
                                    const Eigen::Vector4f &top_right) {
   float near = down_left.z();
   float far = top_right.z();
-  G_ASSERTS_TRUE(near < 0 && far < 0, "n and f should be nagetive");
   G_ASSERTS_TRUE(near > far, "near should be bigger than far");
 
   return transformation::generateWindowingMatrix(
@@ -21,9 +20,8 @@ view::generatePerspectiveProjection(const Eigen::Vector4f &down_left,
                                     float far) {
   float n = down_left.z();
 
-  G_ASSERTS_TRUE(n < 0 && far < 0, "n and f should be nagetive");
   G_ASSERTS_TRUE(n > far, "near should be bigger than far");
-  G_ASSERTS_TRUE(std::abs(down_left.z() - top_right.z()) < 1e-9,
+  G_ASSERTS_TRUE(down_left.z() - top_right.z() > 0,
                  "near should be bigger than far");
   Matrix4f p = Eigen::Matrix4f::Zero();
   p << n, 0, 0, 0, 0, n, 0, 0, 0, 0, n + far, -n * far, 0, 0, 1, 0;
